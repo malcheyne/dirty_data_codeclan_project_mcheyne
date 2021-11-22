@@ -163,5 +163,50 @@ clean_data1 %>%
   # summarise(count = nrow(.))
 ```
 
+```{r}
+test_data1 <- data1 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2015") %>% 
+                unite("year_id", year, id) %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>% 
+                rename("age" = "how_old_are_you",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, trick_or_treating, sweets, rating)
+```
+
+
+```{r}
+# Age question inputs
+
+test_data1 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(age) %>% 
+  summarise(count = n())
+```
+
+
+```{r}
+# Age question inputs after cleaning
+
+clean_data1 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(age) %>% 
+  summarise(count = n())
+```
+
+
+
+```{r}
+
+```
+
+
 
 

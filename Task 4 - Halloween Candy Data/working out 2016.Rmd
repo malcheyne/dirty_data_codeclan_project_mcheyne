@@ -107,6 +107,15 @@ data 2 had 1259 rows before turning age to numeric. Diff between data2(1259) - c
 
 ```{r}
 clean_data2 %>% 
+  group_by(sweets, rating) %>% 
+  summarise(count = n())
+```
+
+
+```{r}
+# number per gender
+
+clean_data2 %>% 
   group_by(year_id, gender) %>%
   summarise(count = n()) %>% 
   ungroup() %>% 
@@ -143,6 +152,19 @@ test_data2 %>%
   group_by(age) %>% 
   summarise(count = n())
 ```
+
+```{r}
+# Age question inputs after cleaning
+
+clean_data2 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(age) %>% 
+  summarise(count = n())
+```
+
+loses 98 - 68 = 30 rows of inputs. 33 are na, rest are chr inputs 
 
 
 
