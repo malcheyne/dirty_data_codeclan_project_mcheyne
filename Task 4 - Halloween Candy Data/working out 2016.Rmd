@@ -1,0 +1,148 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(janitor)
+```
+
+
+```{r}
+data2 <- read_excel("data/candy_ranking_data/boing-boing-candy-2016.xlsx")
+```
+
+
+```{r}
+names(data2)
+```
+
+
+```{r}
+clean_data2 <- data2 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2016") %>% 
+                unite("year_id", year, id) %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>% 
+                rename("age" = "how_old_are_you",
+                       "gender" = "your_gender",
+                       "country"= "which_country_do_you_live_in",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, gender, trick_or_treating, sweets, rating, country) %>% 
+                mutate(age = as.numeric(age)) %>% 
+                filter(age > 0 & age < 120)
+
+clean_data2
+                
+```
+
+```{r}
+# avg_age going trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))
+```
+
+```{r}
+# number of people trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+```
+
+```{r}
+# avg_age not trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))
+  
+```
+
+```{r}
+# number of people not trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+```
+
+```{r}
+# checking if missing any ages
+
+clean_data2 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+
+```
+
+data 2 had 1259 rows before turning age to numeric. Diff between data2(1259) - clean_data2(1190) = 69
+
+
+```{r}
+clean_data2 %>% 
+  group_by(year_id, gender) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(gender) %>% 
+  summarise(count = n())
+  
+```
+
+
+```{r}
+test_data2 <- data2 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2016") %>% 
+                unite("year_id", year, id) %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>% 
+                rename("age" = "how_old_are_you",
+                       "gender" = "your_gender",
+                       "country"= "which_country_do_you_live_in",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, gender, trick_or_treating, sweets, rating, country)
+```
+
+
+```{r}
+# Age question inputs
+
+test_data2 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(age) %>% 
+  summarise(count = n())
+```
+
+
+

@@ -39,7 +39,9 @@ head(data3)
 ```{r}
 clean_data1 <- data1 %>% 
                 clean_names() %>% 
-                mutate(year_id = row_number()) %>% 
+                mutate(id = row_number(),
+                       year = "2015") %>% 
+                unite("year_id", year, id) %>% 
                 pivot_longer(4:96,
                              names_to = "sweets",
                              values_to = "rating") %>% 
@@ -48,7 +50,9 @@ clean_data1 <- data1 %>%
                 #              values_to = "degree_of_separation") %>% 
                 rename("age" = "how_old_are_you",
                               "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
-                select(year_id, age, trick_or_treating, sweets, rating) #%>% 
+                select(year_id, age, trick_or_treating, sweets, rating) %>% 
+                mutate(age = as.numeric(age)) %>% 
+                filter(age > 0 & age < 120)
                 
   
   
@@ -60,15 +64,104 @@ head(clean_data1, 30)
 ```
 
 ```{r}
+age_is_null <- clean_data1 %>% 
+                  filter(age == is.null(age))
+age_is_null
+```
+
+
+```{r}
+# avg_age going trick_or_treating
+
+clean_data1 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))
+```
+
+```{r}
+# number of people trick_or_treating
+
+clean_data1 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+```
+
+
+```{r}
+# avg_age not trick_or_treating
+
+clean_data1 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))
+  
+```
+
+
+```{r}
+# number of people not trick_or_treating
+
+clean_data1 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+```
+
+```{r}
+# checking if missing any ages
+
+clean_data1 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+  
+  
+  
+  
+```
+data 1 had 5630 rows before turning age to numeric. Diff between data1(5630) - clean_data1(5334) = 296
+
+
+
+```{r}
 names(clean_data1)
 ```
 
 ```{r}
+#patten <- 
+
 clean_data1 %>% 
-  filter()
+  select(age) %>% 
+  str_detect("[A-Za-z]+")
 ```
 
 
+```{r}
+# Only Joy, Despair or NA in 2015
+
+clean_data1 %>% 
+  group_by(sweets, rating) %>% 
+  #filter(rating = is.na()) %>% 
+  summarise(count = n()) #%>% 
+  #group_by(year_id) %>% 
+  # ungroup() %>% 
+  # summarise(count = nrow(.))
+```
 
 
 
