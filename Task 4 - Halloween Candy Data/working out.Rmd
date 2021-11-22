@@ -1,0 +1,74 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(janitor)
+```
+
+```{r}
+data1 <- read_excel("data/candy_ranking_data/boing-boing-candy-2015.xlsx")
+data2 <- read_excel("data/candy_ranking_data/boing-boing-candy-2016.xlsx")
+data3 <- read_excel("data/candy_ranking_data/boing-boing-candy-2017.xlsx")
+```
+
+```{r}
+names(data1)
+class(data1)
+head(data1)
+```
+
+
+```{r}
+names(data2)
+class(data2)
+head(data2)
+```
+
+```{r}
+names(data3)
+class(data3)
+head(data3)
+```
+
+
+```{r}
+clean_data1 <- data1 %>% 
+                clean_names() %>% 
+                mutate(year_id = row_number()) %>% 
+                pivot_longer(4:96,
+                             names_to = "sweets",
+                             values_to = "rating") %>% 
+                # pivot_longer(starts_with("please_estimate"),
+                #              names_to = "celebrities",
+                #              values_to = "degree_of_separation") %>% 
+                rename("age" = "how_old_are_you",
+                              "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, trick_or_treating, sweets, rating) #%>% 
+                
+  
+  
+  
+               # mutate(trick_or_treating = is.logical(trick_or_treating))
+
+head(clean_data1, 30)
+#names(clean_data1)
+```
+
+```{r}
+names(clean_data1)
+```
+
+```{r}
+clean_data1 %>% 
+  filter()
+```
+
+
+
+
+
