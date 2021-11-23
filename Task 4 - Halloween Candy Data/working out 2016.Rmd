@@ -218,7 +218,7 @@ country_data2 %>%
 country_clean_data2 <- country_data2
 
 country_clean_data2 <- country_clean_data2 %>% 
-                        mutate(country = str_trim(country, side = "both"),
+                        mutate(country = str_trim(country, side = "both"),    # changing USA to US
                                country = str_squish(country),
                                country = str_replace_all(country, "[uU][sS][aA][ :punct:]*", "US"),
                                country = str_replace_all(country, "[uU][sS][:punct:]*", "US"),
@@ -246,15 +246,45 @@ country_clean_data2 <- country_clean_data2 %>%
                                country = str_replace_all(country, "UNited States", "US"),
                                country = str_replace_all(country, "United Stetes", "US"),
                                country = str_replace_all(country, "Units States", "US"),
-                               country = str_replace_all(country, "Trumpistan", "US")
+                               country = str_replace_all(country, "Trumpistan", "US"),
+                               country = str_replace_all(country, "\\'s an election year so who can really tell\\)", "")
+                               ) %>% 
+                        mutate(country = str_trim(country, side = "both"),    # Change to Uk
+                               country = str_squish(country),
+                               country = str_replace_all(country, "[eE]ngland", "UK"),
+                               country = str_replace_all(country, "[uU][kK]", "UK"),
+                               country = str_replace_all(country, "United Kindom", "UK"),
+                               country = str_replace_all(country, "[uU]nited [kK]ingdom", "UK")
+                              ) %>% 
+                        mutate(country = str_trim(country, side = "both"),    # Change to Canada
+                               country = str_squish(country),
+                               country = str_replace_all(country, "[cC]anada", "Canada")
                                
-                               )
+                              )
   
 country_clean_data2
 ```
 
+
 ```{r}
-usa <- str_c("united sates", "us", "u s")
+# Change to Uk
+# country_clean_data2 <- country_data2
+# 
+# country_clean_data2 <- country_clean_data2 %>% 
+#                         mutate(country = str_trim(country, side = "both"),
+#                                country = str_squish(country),
+#                                country = str_replace_all(country, "[eE]ngland", "UK"),
+#                                country = str_replace_all(country, "[uU][kK]", "UK"),
+#                                country = str_replace_all(country, "United Kindom", "UK"),
+#                                country = str_replace_all(country, "[uU]nited [kK]ingdom", "UK")
+#                               )
+# country_clean_data2
+```
+
+
+
+```{r}
+#usa <- str_c("united sates", "us", "u s")
 ```
 
 
