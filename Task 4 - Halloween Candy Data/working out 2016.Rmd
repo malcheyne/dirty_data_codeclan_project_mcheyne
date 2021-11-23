@@ -200,13 +200,13 @@ country_data2
 
 
 ```{r}
-usa_pattern <- "[uU][sS][aA][:punct:]+"
-
-country_data2 %>%
-  group_by(year_id, country) %>%
-  str_extract_all(usa_pattern) %>%
-  flatten_chr()  
-
+# usa_pattern <- "[uU][sS][aA][:punct:]+"
+# 
+# country_data2 %>%
+#   group_by(year_id, country) %>%
+#   str_extract_all(usa_pattern) %>%
+#   flatten_chr()  
+# 
 
 ```
 
@@ -215,7 +215,7 @@ country_data2 %>%
 # changing country 
 
 
-country_clean_data2 <- country_data2
+country_clean_data2 <- clean_data2
 
 country_clean_data2 <- country_clean_data2 %>% 
                         mutate(country = str_trim(country, side = "both"),    # changing USA to US
@@ -260,12 +260,23 @@ country_clean_data2 <- country_clean_data2 %>%
                                country = str_squish(country),
                                country = str_replace_all(country, "[cC]anada", "Canada")
                               ) %>% 
+                        mutate(country = str_replace_all(country, "[0-9]{2}[:punct:][0-9]", "Unknown Country"),
+                               country = str_replace_all(country, "A tropical island south of the equator", "Unknown Country"),
+                               country = str_replace_all(country, "Denial", "Unknown Country"),
+                               country = str_replace_all(country, "god's country", "Unknown Country"),
+                               country = str_replace_all(country, "one of the best ones", "Unknown Country"),
+                               country = str_replace_all(country, "See above", "Unknown Country"),
+                               country = str_replace_all(country, "Somewhere", "Unknown Country"),
+                               country = str_replace_all(country, "there isn't one for old men", "Unknown Country"),
+                               country = str_replace_all(country, "this one", "Unknown Country")
+                               ) %>% 
                         mutate(country = if_else(str_detect(country, "US") |   # change to rest of world
                                                  str_detect(country, "UK") |
                                                  str_detect(country, "Canada") |
+                                                 str_detect(country, "Unknown Country") |
                                                  is.na(country),
                                                  country, "all other countries")
-                                                 ) %>% 
+                                                 ) %>%
                         mutate(country =  str_replace_all(country, "Not theUSor Canada", "all other countries"),
                                country =  str_replace_all(country, "AUStria", "all other countries"),
                                country =  str_replace_all(country, "AUStralia", "all other countries")
@@ -306,6 +317,14 @@ country_clean_data2 %>%
   summarise(count = n())
   
 ```
+
+
+```{r}
+write_csv(country_clean_data2, "data/data_cleaned_2016.csv")
+```
+
+
+
 "(?i) big( +)brother"
 
 "USSA", "USA!!!!!!"

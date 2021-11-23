@@ -204,7 +204,7 @@ clean_data1 %>%
 
 
 ```{r}
-
+write_csv(clean_data1, "data/data_cleaned_2015.csv")
 ```
 
 
