@@ -1,0 +1,23 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(janitor)
+```
+
+
+```{r}
+data3 <- read_excel("data/candy_ranking_data/boing-boing-candy-2017.xlsx")
+```
+
+
+```{r}
+names(data3)
+```
+
+
