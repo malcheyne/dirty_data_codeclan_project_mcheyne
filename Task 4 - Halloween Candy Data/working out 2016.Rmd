@@ -178,10 +178,31 @@ clean_data2 %>%
 ```
 
 
+
+```{r}
+country_data2 <- data2 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2016") %>% 
+                unite("year_id", year, id) %>% 
+                # pivot_longer(7:106,
+                #              names_to = "sweets",
+                #              values_to = "rating") %>% 
+                rename("age" = "how_old_are_you",
+                       "gender" = "your_gender",
+                       "country"= "which_country_do_you_live_in",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, gender, trick_or_treating, #sweets, rating, 
+                       country)
+
+country_data2
+```
+
+
 ```{r}
 usa_pattern <- "[uU][sS][aA][:punct:]+"
 
-clean_data2 %>%
+country_data2 %>%
   group_by(year_id, country) %>%
   str_extract_all(usa_pattern) %>%
   flatten_chr()  
@@ -191,14 +212,50 @@ clean_data2 %>%
 
 
 ```{r}
-country_clean_data2 <- clean_data2
+# changing USA to US
+
+
+country_clean_data2 <- country_data2
 
 country_clean_data2 <- country_clean_data2 %>% 
-                        str_replace_all("[uU][sS][aA][:punct:]+", "USA")
+                        mutate(country = str_trim(country, side = "both"),
+                               country = str_squish(country),
+                               country = str_replace_all(country, "[uU][sS][aA][ :punct:]*", "US"),
+                               country = str_replace_all(country, "[uU][sS][:punct:]*", "US"),
+                               country = str_replace_all(country, "US US", "US"),
+                               country = str_replace_all(country, "USUSUSUS", "US"),
+                               country = str_replace_all(country, "USUSUS", "US"),
+                               country = str_replace_all(country, "[uU][:punct:]*[sS][:punct:]*", "US"),
+                               country = str_replace_all(country, "[uU][ :punct:]*[sS][ :punct:]*[aA][ :punct:]*", "US"),
+                               country = str_replace_all(country, "[uU][sS][:punct:]*", "US"),
+                               country = str_replace_all(country, "[uU]nited +[sS]tates", "US"),
+                               country = str_replace_all(country, "of [aA]merica", "US"),
+                               country = str_replace_all(country, "[aA]merica", "US"),
+                               country = str_replace_all(country, " [uU][sS]", "US"),
+                               country = str_replace_all(country, "Murica", "US"),
+                               country = str_replace_all(country, "Merica", "US"),
+                               country = str_replace_all(country, "[:punct:]*[uU][sS]", "US"),
+                               country = str_replace_all(country, "USUS", "US"),
+                               country = str_replace_all(country, "USSA", "US"),
+                               country = str_replace_all(country, "The Yoo Ess of Aaayyyyyy", "US"),
+                               country = str_replace_all(country, "Sub-Canadian NorthUS... US", "US"),
+                               country = str_replace_all(country, "the best one US", "US"),
+                               country = str_replace_all(country, "USI [ :punct:a-zA-Z:punct:a-zA-Z]*", "US"),
+                               country = str_replace_all(country, "United Sates", "US"),
+                               country = str_replace_all(country, "United State", "US"),
+                               country = str_replace_all(country, "UNited States", "US"),
+                               country = str_replace_all(country, "United Stetes", "US"),
+                               country = str_replace_all(country, "Units States", "US"),
+                               country = str_replace_all(country, "Trumpistan", "US")
+                               
+                               )
   
 country_clean_data2
 ```
 
+```{r}
+usa <- str_c("united sates", "us", "u s")
+```
 
 
 ```{r}
@@ -210,7 +267,7 @@ country_clean_data2 %>%
   summarise(count = n())
   
 ```
-
+"(?i) big( +)brother"
 
 "USSA", "USA!!!!!!"
 
