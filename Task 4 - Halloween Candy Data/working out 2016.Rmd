@@ -185,15 +185,15 @@ country_data2 <- data2 %>%
                 mutate(id = row_number(),
                        year = "2016") %>% 
                 unite("year_id", year, id) %>% 
-                # pivot_longer(7:106,
-                #              names_to = "sweets",
-                #              values_to = "rating") %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>%
                 rename("age" = "how_old_are_you",
                        "gender" = "your_gender",
                        "country"= "which_country_do_you_live_in",
                        "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
-                select(year_id, age, gender, trick_or_treating, #sweets, rating, 
-                       country)
+                select(year_id, age, gender, trick_or_treating, 
+                       sweets, rating, country)
 
 country_data2
 ```
@@ -212,7 +212,7 @@ country_data2 %>%
 
 
 ```{r}
-# changing USA to US
+# changing country 
 
 
 country_clean_data2 <- country_data2
@@ -259,8 +259,17 @@ country_clean_data2 <- country_clean_data2 %>%
                         mutate(country = str_trim(country, side = "both"),    # Change to Canada
                                country = str_squish(country),
                                country = str_replace_all(country, "[cC]anada", "Canada")
-                               
-                              )
+                              ) %>% 
+                        mutate(country = if_else(str_detect(country, "US") |   # change to rest of world
+                                                 str_detect(country, "UK") |
+                                                 str_detect(country, "Canada") |
+                                                 is.na(country),
+                                                 country, "all other countries")
+                                                 ) %>% 
+                        mutate(country =  str_replace_all(country, "Not theUSor Canada", "all other countries"),
+                               country =  str_replace_all(country, "AUStria", "all other countries"),
+                               country =  str_replace_all(country, "AUStralia", "all other countries")
+                               )
   
 country_clean_data2
 ```
