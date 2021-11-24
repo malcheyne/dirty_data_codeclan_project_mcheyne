@@ -1,0 +1,166 @@
+---
+title: "seabirds_final"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(janitor)
+library(readxl)
+```
+
+
+```{r}
+clean_data <- read_csv("data/seabirds_cleaned_data.csv")
+clean_data
+```
+
+
+
+```{r}
+seabirds <- clean_data %>% 
+              select(record_id, common_name, scientific_name, 
+                     species_abbreviation, total_sighting, num_group_sighting, 
+                     lat)
+seabirds
+```
+
+
+
+
+### Q1 Which bird had the most individual sightings?
+```{r}
+seabirds %>% 
+  group_by(common_name) %>% 
+  summarise(count = sum(n())) %>% 
+  arrange(desc(count))
+
+# Wandering albatross	11293
+```
+
+# Q2 Which bird had the highest total count?
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  summarise(count = sum(total_sighting, na.rm = TRUE)) %>% 
+  arrange(desc(count))
+
+# Short-tailed shearwater	982553	
+```
+
+
+
+# Q3 Which bird had the highest total count above a latitude of -30?
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(lat > -30) %>%
+  summarise(count = sum(total_sighting, na.rm = TRUE)) %>%
+  arrange(desc(count))
+  
+
+# Taking above a latitude of -30 as nearer the equator ie 0
+# Wedge-tailed shearwater	855	
+```
+
+
+
+# Q4 How many different types of birds were only ever seen in groups of 1?
+```{r}
+seabirds %>% 
+  group_by(common_name) %>% 
+  mutate(max_sighting = max(num_group_sighting, na.rm = TRUE)) %>% 
+  filter(max_sighting == 1) %>%
+  distinct(common_name) 
+
+# 23 birds only seen once
+```
+
+
+# Q5 How many penguins were seen? (Hint: there are many types of penguin)
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)penguin")) %>% 
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# 158	penguins 
+```
+
+
+
+# Ext Q1 combining all the albatross as one type
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)albatross")) %>% 
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# All albatross 30424	
+```
+
+
+
+# Ext Q2 combining all the shearwater as one type
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)shearwater")) %>% 
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# All shearwater 1394468		
+```
+
+
+
+# Ext Q3 combining all the shearwater as one type
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)shearwater")) %>% 
+  filter(lat > -30) %>%
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# All shearwater seen above a latitude of -30 (nearer the the equator ie 0) 888		
+```
+
+
+
+# Ext Q4 If by types of birds you mean more individual species with no variations
+```{r}
+seabirds %>% 
+  group_by(common_name) %>% 
+  mutate(common_name = if_else(str_detect(common_name, 
+                                          "(?i)shearwater"),"shearwater", 
+                                                            common_name),
+         common_name = if_else(str_detect(common_name, 
+                                          "(?i)albatross"), "albatross",
+                                                            common_name),
+         common_name = if_else(str_detect(common_name, 
+                                          "(?i)mollymawk"), "mollymawk",
+                                                            common_name),
+         common_name = if_else(str_detect(common_name, 
+                                          "(?i)petrel"), "petrel",
+                                                            common_name),
+         common_name = if_else(str_detect(common_name, 
+                                          "(?i)prion"), "prion",
+                                                            common_name),
+         common_name = if_else(str_detect(common_name, 
+                                          "(?i)skua"), "skua",
+                                                            common_name)
+         ) %>% 
+    mutate(max_sighting = max(num_group_sighting, na.rm = TRUE)) %>% 
+  filter(max_sighting == 1) %>%
+  distinct(common_name) 
+
+
+# 2 individual species of birds only seen once, 
+# when the variations are combined as one group
+```
+
+
+
