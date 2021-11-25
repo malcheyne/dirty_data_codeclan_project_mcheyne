@@ -7,16 +7,17 @@ output: html_notebook
 library(tidyverse)
 library(janitor)
 library(readxl)
+library(here)
 ```
 
-
+## Reading in the data
 ```{r}
-clean_data <- read_csv("data/seabirds_cleaned_data.csv")
+clean_data <- read_csv(here("clean_data/seabirds_cleaned_data.csv"))
 clean_data
 ```
 
 
-
+## Selecting the relevant data
 ```{r}
 seabirds <- clean_data %>% 
               select(record_id, common_name, scientific_name, 
@@ -26,7 +27,7 @@ seabirds
 ```
 
 
-
+## Qustions
 
 ### Q1 Which bird had the most individual sightings?
 ```{r}
@@ -38,7 +39,22 @@ seabirds %>%
 # Wandering albatross	11293
 ```
 
-# Q2 Which bird had the highest total count?
+
+
+### Ext Q1 combining all the albatross as one type
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)albatross")) %>% 
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# All albatross 30424	
+```
+
+
+
+### Q2 Which bird had the highest total count?
 ```{r}
 seabirds %>% 
   group_by(common_name) %>%
@@ -50,7 +66,20 @@ seabirds %>%
 
 
 
-# Q3 Which bird had the highest total count above a latitude of -30?
+### Ext Q2 combining all the shearwater as one type
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)shearwater")) %>% 
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# All shearwater 1394468		
+```
+
+
+
+### Q3 Which bird had the highest total count above a latitude of -30?
 ```{r}
 seabirds %>% 
   group_by(common_name) %>%
@@ -65,58 +94,7 @@ seabirds %>%
 
 
 
-# Q4 How many different types of birds were only ever seen in groups of 1?
-```{r}
-seabirds %>% 
-  group_by(common_name) %>% 
-  mutate(max_sighting = max(num_group_sighting, na.rm = TRUE)) %>% 
-  filter(max_sighting == 1) %>%
-  distinct(common_name) 
-
-# 23 birds only seen once
-```
-
-
-# Q5 How many penguins were seen? (Hint: there are many types of penguin)
-```{r}
-seabirds %>% 
-  group_by(common_name) %>%
-  filter(str_detect(common_name, "(?i)penguin")) %>% 
-  ungroup() %>% 
-  summarise(count = sum(total_sighting, na.rm = TRUE))
-
-# 158	penguins 
-```
-
-
-
-# Ext Q1 combining all the albatross as one type
-```{r}
-seabirds %>% 
-  group_by(common_name) %>%
-  filter(str_detect(common_name, "(?i)albatross")) %>% 
-  ungroup() %>% 
-  summarise(count = sum(total_sighting, na.rm = TRUE))
-
-# All albatross 30424	
-```
-
-
-
-# Ext Q2 combining all the shearwater as one type
-```{r}
-seabirds %>% 
-  group_by(common_name) %>%
-  filter(str_detect(common_name, "(?i)shearwater")) %>% 
-  ungroup() %>% 
-  summarise(count = sum(total_sighting, na.rm = TRUE))
-
-# All shearwater 1394468		
-```
-
-
-
-# Ext Q3 combining all the shearwater as one type
+### Ext Q3 combining all the shearwater as one type
 ```{r}
 seabirds %>% 
   group_by(common_name) %>%
@@ -130,7 +108,19 @@ seabirds %>%
 
 
 
-# Ext Q4 If by types of birds you mean more individual species with no variations
+### Q4 How many different types of birds were only ever seen in groups of 1?
+```{r}
+seabirds %>% 
+  group_by(common_name) %>% 
+  mutate(max_sighting = max(num_group_sighting, na.rm = TRUE)) %>% 
+  filter(max_sighting == 1) %>%
+  distinct(common_name) 
+
+# 23 birds only seen once
+```
+
+
+### Ext Q4 If by types of birds you mean more individual species with no variations
 ```{r}
 seabirds %>% 
   group_by(common_name) %>% 
@@ -161,6 +151,36 @@ seabirds %>%
 # 2 individual species of birds only seen once, 
 # when the variations are combined as one group
 ```
+
+
+
+
+### Q5 How many penguins were seen? (Hint: there are many types of penguin)
+```{r}
+seabirds %>% 
+  group_by(common_name) %>%
+  filter(str_detect(common_name, "(?i)penguin")) %>% 
+  ungroup() %>% 
+  summarise(count = sum(total_sighting, na.rm = TRUE))
+
+# 158	penguins 
+```
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 

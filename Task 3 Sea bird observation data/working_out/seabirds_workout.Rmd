@@ -14,9 +14,9 @@ library(here)
 
 
 ```{r}
-bird_data <- read_excel(here("data/seabirds.xls"), 
+bird_data <- read_excel(here("raw_data/seabirds.xls"), 
                              sheet = "Bird data by record ID")
-ship_data <- read_excel(here("data/seabirds.xls"), 
+ship_data <- read_excel(here("raw_data/seabirds.xls"), 
                              sheet = "Ship data by record ID")
 ```
 

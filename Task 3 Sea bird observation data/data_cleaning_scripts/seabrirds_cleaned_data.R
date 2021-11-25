@@ -6,19 +6,14 @@ library(janitor)
 library(readxl)
 library(here)
 
-bird_data <- read_excel(here("data/seabirds.xls"), 
+bird_data <- read_excel(here("raw_data/seabirds.xls"), 
                              sheet = "Bird data by record ID")
-ship_data <- read_excel(here("data/seabirds.xls"), 
+ship_data <- read_excel(here("raw_data/seabirds.xls"), 
                              sheet = "Ship data by record ID")
 
 
-names(bird_data)
-names(ship_data)
-
 
 bird_ship_data <- full_join(bird_data, ship_data, by="RECORD ID")
-
-head(bird_ship_data, 10)
 
 
 clean_b_s <- bird_ship_data %>% 
@@ -168,4 +163,4 @@ clean_b_s <- bird_ship_data %>%
 
 clean_b_s
 
-write_csv(clean_b_s, "data/seabirds_cleaned_data.csv")
+write_csv(clean_b_s, "clean_data/seabirds_cleaned_data.csv")
