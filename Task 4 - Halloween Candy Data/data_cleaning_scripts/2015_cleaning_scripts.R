@@ -16,7 +16,7 @@ clean_2015 <- data_2015 %>%
   mutate(id = row_number(),
          year = "2015") %>% 
   unite("year_id", year, id) %>% 
-  pivot_longer(4:96,
+  pivot_longer(c(4:15, 17:37, 39:62, 64:93, 96, 114, 115),
                names_to = "sweets",
                values_to = "rating") %>% 
   rename("age" = "how_old_are_you",

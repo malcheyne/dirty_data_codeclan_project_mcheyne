@@ -1,0 +1,344 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+library(readxl)
+library(janitor)
+```
+
+
+```{r}
+data2 <- read_excel("data/candy_ranking_data/boing-boing-candy-2016.xlsx")
+```
+
+
+```{r}
+names(data2)
+```
+
+
+```{r}
+clean_data2 <- data2 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2016") %>% 
+                unite("year_id", year, id) %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>% 
+                rename("age" = "how_old_are_you",
+                       "gender" = "your_gender",
+                       "country"= "which_country_do_you_live_in",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, gender, trick_or_treating, sweets, rating, country) %>% 
+                mutate(age = as.numeric(age)) %>% 
+                filter(age > 0 & age < 120)
+
+clean_data2
+                
+```
+
+```{r}
+# avg_age going trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))
+```
+
+```{r}
+# number of people trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+```
+
+```{r}
+# avg_age not trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))
+  
+```
+
+```{r}
+# number of people not trick_or_treating
+
+clean_data2 %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+```
+
+```{r}
+# checking if missing any ages
+
+clean_data2 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  summarise(count = nrow(.))
+
+```
+
+data 2 had 1259 rows before turning age to numeric. Diff between data2(1259) - clean_data2(1190) = 69
+
+
+```{r}
+# Number per rating of each sweet
+
+clean_data2 %>% 
+  group_by(sweets, rating) %>% 
+  summarise(count = n())
+```
+
+
+```{r}
+# number per gender
+
+clean_data2 %>% 
+  group_by(year_id, gender) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(gender) %>% 
+  summarise(count = n())
+  
+```
+
+
+```{r}
+test_data2 <- data2 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2016") %>% 
+                unite("year_id", year, id) %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>% 
+                rename("age" = "how_old_are_you",
+                       "gender" = "your_gender",
+                       "country"= "which_country_do_you_live_in",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, gender, trick_or_treating, sweets, rating, country)
+```
+
+
+```{r}
+# Age question inputs
+
+test_data2 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(age) %>% 
+  summarise(count = n())
+```
+
+```{r}
+# Age question inputs after cleaning
+
+clean_data2 %>% 
+  group_by(year_id, age) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(age) %>% 
+  summarise(count = n())
+```
+
+loses 98 - 68 = 30 rows of inputs. 33 are na, rest are chr inputs 
+
+```{r}
+clean_data2 %>% 
+  group_by(year_id, country) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(country) %>% 
+  summarise(count = n())
+```
+
+
+
+```{r}
+country_data2 <- data2 %>% 
+                clean_names() %>% 
+                mutate(id = row_number(),
+                       year = "2016") %>% 
+                unite("year_id", year, id) %>% 
+                pivot_longer(7:106,
+                             names_to = "sweets",
+                             values_to = "rating") %>%
+                rename("age" = "how_old_are_you",
+                       "gender" = "your_gender",
+                       "country"= "which_country_do_you_live_in",
+                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                select(year_id, age, gender, trick_or_treating, 
+                       sweets, rating, country)
+
+country_data2
+```
+
+
+```{r}
+# usa_pattern <- "[uU][sS][aA][:punct:]+"
+# 
+# country_data2 %>%
+#   group_by(year_id, country) %>%
+#   str_extract_all(usa_pattern) %>%
+#   flatten_chr()  
+# 
+
+```
+
+
+```{r}
+# changing country 
+
+
+country_clean_data2 <- clean_data2
+
+country_clean_data2 <- country_clean_data2 %>% 
+                        mutate(country = str_trim(country, side = "both"),    # changing USA to US
+                               country = str_squish(country),
+                               country = str_replace_all(country, "[uU][sS][aA][ :punct:]*", "US"),
+                               country = str_replace_all(country, "[uU][sS][:punct:]*", "US"),
+                               country = str_replace_all(country, "US US", "US"),
+                               country = str_replace_all(country, "USUSUSUS", "US"),
+                               country = str_replace_all(country, "USUSUS", "US"),
+                               country = str_replace_all(country, "[uU][:punct:]*[sS][:punct:]*", "US"),
+                               country = str_replace_all(country, "[uU][ :punct:]*[sS][ :punct:]*[aA][ :punct:]*", "US"),
+                               country = str_replace_all(country, "[uU][sS][:punct:]*", "US"),
+                               country = str_replace_all(country, "[uU]nited +[sS]tates", "US"),
+                               country = str_replace_all(country, "of [aA]merica", "US"),
+                               country = str_replace_all(country, "[aA]merica", "US"),
+                               country = str_replace_all(country, " [uU][sS]", "US"),
+                               country = str_replace_all(country, "Murica", "US"),
+                               country = str_replace_all(country, "Merica", "US"),
+                               country = str_replace_all(country, "[:punct:]*[uU][sS]", "US"),
+                               country = str_replace_all(country, "USUS", "US"),
+                               country = str_replace_all(country, "USSA", "US"),
+                               country = str_replace_all(country, "The Yoo Ess of Aaayyyyyy", "US"),
+                               country = str_replace_all(country, "Sub-Canadian NorthUS... US", "US"),
+                               country = str_replace_all(country, "the best one US", "US"),
+                               country = str_replace_all(country, "USI [ :punct:a-zA-Z:punct:a-zA-Z]*", "US"),
+                               country = str_replace_all(country, "United Sates", "US"),
+                               country = str_replace_all(country, "United State", "US"),
+                               country = str_replace_all(country, "UNited States", "US"),
+                               country = str_replace_all(country, "United Stetes", "US"),
+                               country = str_replace_all(country, "Units States", "US"),
+                               country = str_replace_all(country, "Trumpistan", "US"),
+                               country = str_replace_all(country, "\\'s an election year so who can really tell\\)", "")
+                               ) %>% 
+                        mutate(country = str_trim(country, side = "both"),    # Change to Uk
+                               country = str_squish(country),
+                               country = str_replace_all(country, "[eE]ngland", "UK"),
+                               country = str_replace_all(country, "[uU][kK]", "UK"),
+                               country = str_replace_all(country, "United Kindom", "UK"),
+                               country = str_replace_all(country, "[uU]nited [kK]ingdom", "UK")
+                              ) %>% 
+                        mutate(country = str_trim(country, side = "both"),    # Change to Canada
+                               country = str_squish(country),
+                               country = str_replace_all(country, "[cC]anada", "Canada")
+                              ) %>% 
+                        mutate(country = str_replace_all(country, "[0-9]{2}[:punct:][0-9]", "Unknown Country"),
+                               country = str_replace_all(country, "A tropical island south of the equator", "Unknown Country"),
+                               country = str_replace_all(country, "Denial", "Unknown Country"),
+                               country = str_replace_all(country, "god's country", "Unknown Country"),
+                               country = str_replace_all(country, "one of the best ones", "Unknown Country"),
+                               country = str_replace_all(country, "See above", "Unknown Country"),
+                               country = str_replace_all(country, "Somewhere", "Unknown Country"),
+                               country = str_replace_all(country, "there isn't one for old men", "Unknown Country"),
+                               country = str_replace_all(country, "this one", "Unknown Country")
+                               ) %>% 
+                        mutate(country = if_else(str_detect(country, "US") |   # change to rest of world
+                                                 str_detect(country, "UK") |
+                                                 str_detect(country, "Canada") |
+                                                 str_detect(country, "Unknown Country") |
+                                                 is.na(country),
+                                                 country, "all other countries")
+                                                 ) %>%
+                        mutate(country =  str_replace_all(country, "Not theUSor Canada", "all other countries"),
+                               country =  str_replace_all(country, "AUStria", "all other countries"),
+                               country =  str_replace_all(country, "AUStralia", "all other countries")
+                               )
+  
+country_clean_data2
+```
+
+
+```{r}
+# Change to Uk
+# country_clean_data2 <- country_data2
+# 
+# country_clean_data2 <- country_clean_data2 %>% 
+#                         mutate(country = str_trim(country, side = "both"),
+#                                country = str_squish(country),
+#                                country = str_replace_all(country, "[eE]ngland", "UK"),
+#                                country = str_replace_all(country, "[uU][kK]", "UK"),
+#                                country = str_replace_all(country, "United Kindom", "UK"),
+#                                country = str_replace_all(country, "[uU]nited [kK]ingdom", "UK")
+#                               )
+# country_clean_data2
+```
+
+
+
+```{r}
+#usa <- str_c("united sates", "us", "u s")
+```
+
+
+```{r}
+country_clean_data2 %>% 
+  group_by(year_id, country) %>%
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  group_by(country) %>% 
+  summarise(count = n())
+  
+```
+
+
+```{r}
+write_csv(country_clean_data2, "data/data_cleaned_2016.csv")
+```
+
+
+
+"(?i) big( +)brother"
+
+"USSA", "USA!!!!!!"
+
+name_pattern <- "your_name_here"
+location_pattern <- "your_town_here"
+
+test_strings %>%
+  str_replace_all(name_pattern, "Del") %>%
+  str_replace_all(location_pattern, "Edinburgh")
+
+
+pattern <- "[ ,\\.-][gG][iI][nN][ ,\\.-]"
+
+whole_text %>%
+  str_extract_all(pattern) %>%
+  flatten_chr()

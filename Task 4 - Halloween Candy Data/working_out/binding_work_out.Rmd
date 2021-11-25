@@ -1,0 +1,29 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+
+```{r}
+clean_2015 <- read_csv(here("clean_data/2015_clean_data.csv"))
+clean_2016 <- read_csv(here("clean_data/2016_clean_data.csv"))
+clean_2017 <- read_csv(here("clean_data/2017_clean_data.csv"))
+```
+
+```{r}
+clean_15_16 <- bind_rows(clean_2015, clean_2016)
+
+head(clean_15_16)
+tail(clean_15_16)
+```
+
+
+```{r}
+full_cleaned_data <- bind_rows(clean_15_16, clean_2017)
+```
+

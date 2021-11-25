@@ -1,0 +1,388 @@
+---
+title: "R Notebook"
+output: html_notebook
+---
+
+
+
+```{r}
+library(tidyverse)
+library(here)
+```
+
+
+```{r}
+candy <- read_csv(here("clean_data/combined_cleaned_data.csv"))
+```
+
+```{r}
+head(candy)
+tail(candy)
+```
+
+
+## Q1 What is the total number of candy ratings given across the three years. (Number of candy ratings, not the number of raters. Don’t count missing values)
+```{r}
+candy %>% 
+  group_by(sweets, rating) %>% 
+  filter(rating != is.na(rating)) %>% 
+  summarise(count = n()) %>% 
+  ungroup() %>% 
+  summarise(total_rating_num = sum(count))
+
+# 695037 vote over the three years
+```
+
+## Q2 What was the average age of people who are going out trick or treating?
+```{r}
+candy %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "Yes") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age)) %>% 
+  floor()
+
+# 35 average age going trick or treating
+```
+
+
+## Q3 What was the average age of people who are not going trick or treating?
+```{r}
+candy %>% 
+  group_by(year_id, age) %>% 
+  filter(trick_or_treating == "No") %>% 
+  summarise(count = n()) %>% 
+  #group_by(year_id) %>% 
+  ungroup() %>% 
+  summarise(avg_age = mean(age))%>% 
+  floor()
+
+# 39 average age not going trick or treating
+```
+
+
+## Q4 For each of joy, despair and meh, which candy bar revived the most of these ratings?
+
+### JOY
+```{r}
+candy %>% 
+  group_by(sweets, rating) %>% 
+  filter(rating != is.na(rating),
+         rating == "JOY") %>% 
+  summarise(count_joy = n()) %>% 
+  arrange(desc(count_joy)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar with JOY = 7249		
+```
+### DESPAIR
+```{r}
+candy %>% 
+  group_by(sweets, rating) %>% 
+  filter(rating != is.na(rating),
+         rating == "DESPAIR") %>% 
+  summarise(count_despair = n()) %>% 
+  arrange(desc(count_despair)) %>% 
+  head(1)
+
+# broken_glow_stick	with DESPAIR = 7540	
+```
+### MEH
+```{r}
+candy %>% 
+  group_by(sweets, rating) %>% 
+  filter(rating != is.na(rating),
+         rating == "MEH") %>% 
+  summarise(count_meh = n()) %>% 
+  arrange(desc(count_meh)) %>% 
+  head(1)
+
+# lollipops	with MEH = 1508		
+```
+
+### NA
+```{r}
+candy %>% 
+  group_by(sweets, rating) %>% 
+  filter(is.na(rating)) %>% 
+  summarise(count_na = n()) %>% 
+  arrange(desc(count_na)) %>% 
+  head(1)
+
+# most skipped question maynards NA = 2349		
+```
+
+
+## Q5 How many people rated Starburst as despair?
+```{r}
+candy %>% 
+  group_by(sweets, rating) %>% 
+  filter(sweets == "starburst" &
+         rating == "DESPAIR") %>%
+  summarise(count = n()) 
+
+# 1865 people hate starburst
+
+```
+
+
+## Q6 What was the most popular candy bar by this rating system for each gender in the dataset ?
+
+### Male popular candy
+```{r}
+joy_male <- candy %>% 
+                group_by(sweets, rating, gender) %>% 
+                filter(gender == "Male", 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy)) 
+
+despair_male <- candy %>% 
+                group_by(sweets, rating, gender) %>% 
+                filter(gender == "Male", 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>% 
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair)) 
+
+
+male_joy_despair <- full_join(joy_male, despair_male, by="sweets")
+
+male_joy_despair %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 1533 votes
+```
+
+### Female popular candy
+```{r}
+joy_female <- candy %>% 
+                group_by(sweets, rating, gender) %>% 
+                filter(gender == "Female", 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy)) 
+
+despair_female <- candy %>% 
+                group_by(sweets, rating, gender) %>% 
+                filter(gender == "Female", 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>% 
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+female_joy_despair <- full_join(joy_female, despair_female, by="sweets")
+
+female_joy_despair %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 855	votes
+```
+
+
+## Q7 What was the most popular candy bar in each year?
+
+### 2015
+```{r}
+joy_2015 <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(str_detect(year_id, "2015"), 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_2015 <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(str_detect(year_id, "2015"), 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_2015 <- full_join(joy_2015, despair_2015 , by="sweets")
+
+
+joy_despair_2015 %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 4396 votes
+
+```
+
+### 2016
+```{r}
+joy_2016 <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(str_detect(year_id, "2016"), 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_2016 <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(str_detect(year_id, "2016"), 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_2016 <- full_join(joy_2016, despair_2016 , by="sweets")
+
+
+joy_despair_2016 %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 983 votes
+```
+
+### 2017
+```{r}
+joy_2017 <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(str_detect(year_id, "2017"), 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_2017 <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(str_detect(year_id, "2017"), 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_2017 <- full_join(joy_2017, despair_2017 , by="sweets")
+
+
+joy_despair_2017 %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 1499 votes
+```
+
+
+## Q8 What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
+
+### US
+```{r}
+joy_us <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "US", 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_us <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "US", 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_us <- full_join(joy_us, despair_us , by="sweets")
+
+
+joy_despair_us %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 2124 votes
+```
+
+
+### UK
+```{r}
+joy_uk <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "UK", 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_uk <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "UK", 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_uk <- full_join(joy_uk, despair_uk , by="sweets")
+
+
+joy_despair_uk %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# cash_or_other_forms_of_legal_tender by 34 votes
+```
+
+
+### Canada
+```{r}
+joy_can <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "Canada", 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_can <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "Canada", 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_can <- full_join(joy_can, despair_can , by="sweets")
+
+
+joy_despair_can %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(1)
+
+# any_full_sized_candy_bar by 247 votes
+```
+
+
