@@ -45,12 +45,18 @@ clean_data1 <- data1 %>%
                 pivot_longer(4:96,
                              names_to = "sweets",
                              values_to = "rating") %>% 
+  
+                # Don't use not needed
                 # pivot_longer(starts_with("please_estimate"),
                 #              names_to = "celebrities",
-                #              values_to = "degree_of_separation") %>% 
+                #              values_to = "degree_of_separation") %>%
                 rename("age" = "how_old_are_you",
-                              "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
-                select(year_id, age, trick_or_treating, sweets, rating) %>% 
+                              "trick_or_treating" = 
+                "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                mutate(gender = NA_character_) %>% 
+                mutate(country = NA_character_) %>%
+                select(year_id, age, gender, trick_or_treating, sweets, 
+                       rating, country) %>% 
                 mutate(age = as.numeric(age)) %>% 
                 filter(age > 0 & age < 120)
                 
@@ -173,7 +179,8 @@ test_data1 <- data1 %>%
                              names_to = "sweets",
                              values_to = "rating") %>% 
                 rename("age" = "how_old_are_you",
-                       "trick_or_treating" = "are_you_going_actually_going_trick_or_treating_yourself") %>% 
+                       "trick_or_treating" = 
+                "are_you_going_actually_going_trick_or_treating_yourself") %>% 
                 select(year_id, age, trick_or_treating, sweets, rating)
 ```
 
