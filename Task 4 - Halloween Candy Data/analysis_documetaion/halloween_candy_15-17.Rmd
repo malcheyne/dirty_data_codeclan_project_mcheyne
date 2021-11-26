@@ -1,6 +1,8 @@
 ---
-title: "R Notebook"
-output: html_notebook
+title: "Halloween Candy Data"
+output:
+  html_document:
+    df_print: paged
 ---
 
 
@@ -20,8 +22,47 @@ head(candy)
 tail(candy)
 ```
 
+# Brief
 
-## Q1 What is the total number of candy ratings given across the three years. (Number of candy ratings, not the number of raters. Don’t count missing values)
+Cleaning the 2015-2017 data from Boing Boing Candy questionnaires
+
+# Assumptions
+
+Have only used the the data showing age, gender, if they going trick or treating, the type of sweets, their rating for the sweets and what country they have put down.
+
+Took out non sweets from the data as not sweets: 2 DVD box sets, vals of corn syrup, white bread, whole wheat, pencils, a board game, hugs form the person. This change the total number of vote for the 3 year by 32,036. From 727,573 individual votes to 695,037 votes.
+
+Did leave "cash or other forms of legal tender" and "glow sticks" as an option, while not a sweet it's something wound not mind getting instead. Have show the top 2 sweets so that the top sweets can also be seen.
+
+Did not include the sweets in the comments as they didn't have ratings assigned to them.
+
+For the countries in split them by if I could define a country from their meaning. Examples being states, areas or city's in that county, close spelling misstates, repeated words, etc... For inputs that where not a real place like "narnia", "atlantis" or numeric inputs, have been allocated to "Unknown Country". Have keep them so they can be inculcated in Q8.
+
+For the age of the person I have only taken numeric inputs, and limited the age range to people from 1-120 as a reasonable life expectancy. Did plan to change the non-numeric data and data out of the range to the mean/median age of the data but didn't have time in the end to add that.
+
+# Cleanning steps
+
+use a script for the cleaning
+
+cleaned the columns name
+
+made a year id
+
+made the dataframe longer
+
+rename the columns to match each year
+
+filtered the dataframe to the age 
+
+if_else the countries in to the same style match each year
+
+witre the file as a .csv
+
+bind the 3 files in a script
+
+read in here
+
+### Q1 What is the total number of candy ratings given across the three years. (Number of candy ratings, not the number of raters. Don’t count missing values)
 ```{r}
 candy %>% 
   group_by(sweets, rating) %>% 
@@ -30,10 +71,10 @@ candy %>%
   ungroup() %>% 
   summarise(total_rating_num = sum(count))
 
-# 695037 vote over the three years
+# Had 695,037 vote over the three years for Joy, Despair and Meh.
 ```
 
-## Q2 What was the average age of people who are going out trick or treating?
+### Q2 What was the average age of people who are going out trick or treating?
 ```{r}
 candy %>% 
   group_by(year_id, age) %>% 
@@ -44,11 +85,11 @@ candy %>%
   summarise(avg_age = mean(age)) %>% 
   floor()
 
-# 35 average age going trick or treating
+# The average age going trick or treating was 35
 ```
 
 
-## Q3 What was the average age of people who are not going trick or treating?
+### Q3 What was the average age of people who are not going trick or treating?
 ```{r}
 candy %>% 
   group_by(year_id, age) %>% 
@@ -59,13 +100,13 @@ candy %>%
   summarise(avg_age = mean(age))%>% 
   floor()
 
-# 39 average age not going trick or treating
+# The average age not going trick or treating was 39
 ```
 
 
-## Q4 For each of joy, despair and meh, which candy bar revived the most of these ratings?
+### Q4 For each of joy, despair and meh, which candy bar revived the most of these ratings?
 
-### JOY
+#### JOY
 ```{r}
 candy %>% 
   group_by(sweets, rating) %>% 
@@ -73,11 +114,11 @@ candy %>%
          rating == "JOY") %>% 
   summarise(count_joy = n()) %>% 
   arrange(desc(count_joy)) %>% 
-  head(1)
+  head(2)
 
 # any_full_sized_candy_bar with JOY = 7249		
 ```
-### DESPAIR
+#### DESPAIR
 ```{r}
 candy %>% 
   group_by(sweets, rating) %>% 
@@ -85,11 +126,11 @@ candy %>%
          rating == "DESPAIR") %>% 
   summarise(count_despair = n()) %>% 
   arrange(desc(count_despair)) %>% 
-  head(1)
+  head(2)
 
 # broken_glow_stick	with DESPAIR = 7540	
 ```
-### MEH
+#### MEH
 ```{r}
 candy %>% 
   group_by(sweets, rating) %>% 
@@ -97,25 +138,25 @@ candy %>%
          rating == "MEH") %>% 
   summarise(count_meh = n()) %>% 
   arrange(desc(count_meh)) %>% 
-  head(1)
+  head(2)
 
 # lollipops	with MEH = 1508		
 ```
 
-### NA
+#### NA
 ```{r}
 candy %>% 
   group_by(sweets, rating) %>% 
   filter(is.na(rating)) %>% 
   summarise(count_na = n()) %>% 
   arrange(desc(count_na)) %>% 
-  head(1)
+  head(2)
 
 # most skipped question maynards NA = 2349		
 ```
 
 
-## Q5 How many people rated Starburst as despair?
+### Q5 How many people rated Starburst as despair?
 ```{r}
 candy %>% 
   group_by(sweets, rating) %>% 
@@ -128,9 +169,9 @@ candy %>%
 ```
 
 
-## Q6 What was the most popular candy bar by this rating system for each gender in the dataset ?
+### Q6 What was the most popular candy bar by this rating system for each gender in the dataset ?
 
-### Male popular candy
+#### Male popular candy
 ```{r}
 joy_male <- candy %>% 
                 group_by(sweets, rating, gender) %>% 
@@ -155,12 +196,12 @@ male_joy_despair %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
 # any_full_sized_candy_bar by 1533 votes
 ```
 
-### Female popular candy
+#### Female popular candy
 ```{r}
 joy_female <- candy %>% 
                 group_by(sweets, rating, gender) %>% 
@@ -185,19 +226,19 @@ female_joy_despair %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
 # any_full_sized_candy_bar by 855	votes
 ```
 
 
-## Q7 What was the most popular candy bar in each year?
+### Q7 What was the most popular candy bar in each year?
 
-### 2015
+#### 2015
 ```{r}
 joy_2015 <- candy %>% 
                 group_by(sweets, rating) %>% 
-                filter(str_detect(year_id, "2015"), 
+                filter(str_detect(year_id, "2015_"), 
                        rating != is.na(rating),
                        rating == "JOY") %>% 
                 summarise(count_joy = n()) %>% 
@@ -205,7 +246,7 @@ joy_2015 <- candy %>%
 
 despair_2015 <- candy %>% 
                 group_by(sweets, rating) %>% 
-                filter(str_detect(year_id, "2015"), 
+                filter(str_detect(year_id, "2015_"), 
                        rating != is.na(rating),
                        rating == "DESPAIR") %>%
                 summarise(count_despair = n()) %>% 
@@ -219,17 +260,17 @@ joy_despair_2015 %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
-# any_full_sized_candy_bar by 4396 votes
+# any_full_sized_candy_bar by 4395 votes
 
 ```
 
-### 2016
+#### 2016
 ```{r}
 joy_2016 <- candy %>% 
                 group_by(sweets, rating) %>% 
-                filter(str_detect(year_id, "2016"), 
+                filter(str_detect(year_id, "2016_"), 
                        rating != is.na(rating),
                        rating == "JOY") %>% 
                 summarise(count_joy = n()) %>% 
@@ -237,7 +278,7 @@ joy_2016 <- candy %>%
 
 despair_2016 <- candy %>% 
                 group_by(sweets, rating) %>% 
-                filter(str_detect(year_id, "2016"), 
+                filter(str_detect(year_id, "2016_"), 
                        rating != is.na(rating),
                        rating == "DESPAIR") %>%
                 summarise(count_despair = n()) %>% 
@@ -251,16 +292,16 @@ joy_despair_2016 %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
-# any_full_sized_candy_bar by 983 votes
+# any_full_sized_candy_bar by 982 votes
 ```
 
-### 2017
+#### 2017
 ```{r}
 joy_2017 <- candy %>% 
                 group_by(sweets, rating) %>% 
-                filter(str_detect(year_id, "2017"), 
+                filter(str_detect(year_id, "2017_"), 
                        rating != is.na(rating),
                        rating == "JOY") %>% 
                 summarise(count_joy = n()) %>% 
@@ -268,7 +309,7 @@ joy_2017 <- candy %>%
 
 despair_2017 <- candy %>% 
                 group_by(sweets, rating) %>% 
-                filter(str_detect(year_id, "2017"), 
+                filter(str_detect(year_id, "2017_"), 
                        rating != is.na(rating),
                        rating == "DESPAIR") %>%
                 summarise(count_despair = n()) %>% 
@@ -282,15 +323,15 @@ joy_despair_2017 %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
-# any_full_sized_candy_bar by 1499 votes
+# any_full_sized_candy_bar by 1498 votes
 ```
 
 
-## Q8 What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
+### Q8 What was the most popular candy bar by this rating for people in US, Canada, UK, and all other countries?
 
-### US
+#### US
 ```{r}
 joy_us <- candy %>% 
                 group_by(sweets, rating) %>% 
@@ -316,13 +357,13 @@ joy_despair_us %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
 # any_full_sized_candy_bar by 2124 votes
 ```
 
 
-### UK
+#### UK
 ```{r}
 joy_uk <- candy %>% 
                 group_by(sweets, rating) %>% 
@@ -348,13 +389,13 @@ joy_despair_uk %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
 # cash_or_other_forms_of_legal_tender by 34 votes
 ```
 
 
-### Canada
+#### Canada
 ```{r}
 joy_can <- candy %>% 
                 group_by(sweets, rating) %>% 
@@ -380,9 +421,73 @@ joy_despair_can %>%
   group_by(sweets) %>% 
   summarise(diff_j_d = (count_joy - count_despair)) %>% 
   arrange(desc(diff_j_d)) %>% 
-  head(1)
+  head(2)
 
 # any_full_sized_candy_bar by 247 votes
 ```
 
+
+#### all other countries
+```{r}
+joy_all <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "all other countries", 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_all <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == "all other countries", 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_all <- full_join(joy_all, despair_all , by="sweets")
+
+
+joy_despair_all %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(2)
+
+# any_full_sized_candy_bar by 68 votes
+```
+
+#### all other countries + Unknown Country
+
+Add this as an extra to check if they would make a difference.
+```{r}
+joy_all_un <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == c("all other countries", "Unknown Country"), 
+                       rating != is.na(rating),
+                       rating == "JOY") %>% 
+                summarise(count_joy = n()) %>% 
+                arrange(desc(count_joy))
+
+despair_all_un <- candy %>% 
+                group_by(sweets, rating) %>% 
+                filter(country == c("all other countries", "Unknown Country"), 
+                       rating != is.na(rating),
+                       rating == "DESPAIR") %>%
+                summarise(count_despair = n()) %>% 
+                arrange(desc(count_despair))
+
+
+joy_despair_all_un <- full_join(joy_all_un, despair_all_un, by="sweets")
+
+
+joy_despair_all_un %>% 
+  group_by(sweets) %>% 
+  summarise(diff_j_d = (count_joy - count_despair)) %>% 
+  arrange(desc(diff_j_d)) %>% 
+  head(2)
+
+# any_full_sized_candy_bar by 38 votes
+```
 
